@@ -14,7 +14,7 @@ import (
 	"unsafe"
 
 	"github.com/mattn/go-pointer"
-	"github.com/mattn/go-tflite/delegates"
+	"github.com/tphakala/go-tflite/delegates"
 )
 
 //go:generate stringer -type TensorType,Status -output type_string.go .
