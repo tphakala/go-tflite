@@ -4,7 +4,7 @@ package xnnpack
 #ifndef GO_XNNPACK_H
 #include "xnnpack.go.h"
 #endif
-#cgo LDFLAGS: -ltensorflowlite-delegate_xnnpack -lXNNPACK
+#cgo LDFLAGS: -lXNNPACK
 */
 import "C"
 import (
