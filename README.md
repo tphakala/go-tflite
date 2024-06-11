@@ -87,6 +87,9 @@ cp edgetpu/libedgetpu/edgetpu_c.h /usr/local/include/edgetpu_c.h && \
 rm -Rf edgetpu
 ```
 
+## Docker build
+
+See <https://github.com/mattn/go-mnist-example/>
 
 ## License
 MIT
