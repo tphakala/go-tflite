@@ -7,6 +7,10 @@ package gl
 #cgo pkg-config: osmesa
 #cgo LDFLAGS: -ltensorflowlite_c -ltensorflowlite_c_delegate_gpu
 #cgo linux LDFLAGS: -ldl -lrt
+
+// Go 1.24+ CGO optimizations
+#cgo nocallback TfLiteGpuDelegateCreate
+#cgo nocallback TfLiteGpuDelegateDelete
 */
 import "C"
 import (

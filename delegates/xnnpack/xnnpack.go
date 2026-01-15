@@ -5,6 +5,12 @@ package xnnpack
 #include "xnnpack.go.h"
 #endif
 #cgo LDFLAGS: -ltensorflowlite_c
+
+// Go 1.24+ CGO optimizations
+#cgo noescape TfLiteXNNPackDelegateCreate
+#cgo nocallback TfLiteXNNPackDelegateOptionsDefault
+#cgo nocallback TfLiteXNNPackDelegateCreate
+#cgo nocallback TfLiteXNNPackDelegateDelete
 */
 import "C"
 import (

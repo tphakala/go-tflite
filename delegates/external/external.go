@@ -7,6 +7,15 @@ package external
 #cgo CFLAGS: -std=c99
 #cgo CXXFLAGS: -std=c99
 #cgo LDFLAGS: -ltensorflowlite-delegate_external
+
+// Go 1.24+ CGO optimizations
+#cgo noescape TfLiteExternalDelegateOptionsDefault
+#cgo noescape TfLiteExternalDelegateOptionsInsert
+#cgo noescape TfLiteExternalDelegateCreate
+#cgo nocallback TfLiteExternalDelegateOptionsDefault
+#cgo nocallback TfLiteExternalDelegateOptionsInsert
+#cgo nocallback TfLiteExternalDelegateCreate
+#cgo nocallback TfLiteExternalDelegateDelete
 */
 import "C"
 import (

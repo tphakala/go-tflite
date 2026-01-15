@@ -9,6 +9,14 @@ package edgetpu
 #endif
 #cgo LDFLAGS: -ledgetpu
 
+// Go 1.24+ CGO optimizations
+#cgo noescape edgetpu_create_delegate
+#cgo nocallback edgetpu_create_delegate
+#cgo nocallback edgetpu_free_delegate
+#cgo nocallback edgetpu_version
+#cgo nocallback edgetpu_verbosity
+#cgo nocallback edgetpu_list_devices
+#cgo nocallback edgetpu_free_devices
 */
 import "C"
 import (

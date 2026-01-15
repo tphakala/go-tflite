@@ -6,6 +6,10 @@ package cl
 #endif
 #cgo LDFLAGS: -ltensorflowlite_c -ltensorflowlite_c_delegate_gpu
 #cgo linux LDFLAGS: -ldl -lrt
+
+// Go 1.24+ CGO optimizations
+#cgo nocallback TfLiteGpuDelegateCreate_New
+#cgo nocallback TfLiteGpuDelegateDelete_New
 */
 import "C"
 import (
