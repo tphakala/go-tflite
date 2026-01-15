@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/mattn/go-tflite"
+	"github.com/tphakala/go-tflite"
 )
 
 const (

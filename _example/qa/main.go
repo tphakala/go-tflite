@@ -14,7 +14,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/mattn/go-tflite"
+	"github.com/tphakala/go-tflite"
 )
 
 var doLowerCase = true

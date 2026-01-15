@@ -14,8 +14,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/mattn/go-tflite"
-	"github.com/mattn/go-tflite/delegates/xnnpack"
+	"github.com/tphakala/go-tflite"
+	"github.com/tphakala/go-tflite/delegates/xnnpack"
 
 	"gocv.io/x/gocv"
 	"golang.org/x/image/colornames"

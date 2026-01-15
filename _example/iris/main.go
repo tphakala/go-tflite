@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/mattn/go-tflite"
+	"github.com/tphakala/go-tflite"
 )
 
 func loadData() ([][]float32, []string, error) {

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/mattn/go-tflite"
-	"github.com/mattn/go-tflite/delegates/edgetpu"
+	"github.com/tphakala/go-tflite"
+	"github.com/tphakala/go-tflite/delegates/edgetpu"
 )
 
 func bin(n int, num_digits int) []uint8 {

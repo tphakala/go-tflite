@@ -13,7 +13,7 @@ import (
 
 	"github.com/llgcode/draw2d/draw2dimg"
 	"github.com/llgcode/draw2d/draw2dkit"
-	"github.com/mattn/go-tflite"
+	"github.com/tphakala/go-tflite"
 	"github.com/nfnt/resize"
 )
 

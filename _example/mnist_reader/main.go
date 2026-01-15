@@ -8,7 +8,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/mattn/go-tflite"
+	"github.com/tphakala/go-tflite"
 	"github.com/nfnt/resize"
 	"github.com/vincent-petithory/dataurl"
 )

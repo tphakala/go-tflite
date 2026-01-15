@@ -6,7 +6,7 @@ import (
 	"log"
 	"math"
 
-	"github.com/mattn/go-tflite"
+	"github.com/tphakala/go-tflite"
 )
 
 //go:embed xor_model.tflite

@@ -14,9 +14,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/mattn/go-tflite"
-	"github.com/mattn/go-tflite/delegates/gpu/gl"
-	builtinOps "github.com/mattn/go-tflite/ops"
+	"github.com/tphakala/go-tflite"
+	"github.com/tphakala/go-tflite/delegates/gpu/gl"
+	builtinOps "github.com/tphakala/go-tflite/ops"
 
 	"gocv.io/x/gocv"
 	"golang.org/x/image/colornames"

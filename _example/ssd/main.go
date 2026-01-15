@@ -14,7 +14,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/mattn/go-tflite"
+	"github.com/tphakala/go-tflite"
 
 	"gocv.io/x/gocv"
 	"golang.org/x/image/colornames"
