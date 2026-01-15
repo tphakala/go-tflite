@@ -58,20 +58,33 @@ import (
 // Model is TfLiteModel.
 type Model struct {
 	m       *C.TfLiteModel
+	buf     unsafe.Pointer  // C.CBytes buffer for NewModel (needs to be freed)
+	cleanup runtime.Cleanup // cleanup handle to prevent double-free
 	deleted atomic.Bool
 }
 
 // NewModel create new Model from buffer.
 func NewModel(model_data []byte) *Model {
-	m := C.TfLiteModelCreate(C.CBytes(model_data), C.size_t(len(model_data)))
+	buf := C.CBytes(model_data)
+	m := C.TfLiteModelCreate(buf, C.size_t(len(model_data)))
 	if m == nil {
+		C.free(buf)
 		return nil
 	}
-	model := &Model{m: m}
-	runtime.AddCleanup(model, func(ptr *C.TfLiteModel) {
-		C.TfLiteModelDelete(ptr)
-	}, m)
+	model := &Model{m: m, buf: buf}
+	model.cleanup = runtime.AddCleanup(model, func(res modelCleanupData) {
+		C.TfLiteModelDelete(res.m)
+		if res.buf != nil {
+			C.free(res.buf)
+		}
+	}, modelCleanupData{m: m, buf: buf})
 	return model
+}
+
+// modelCleanupData holds data needed for Model cleanup.
+type modelCleanupData struct {
+	m   *C.TfLiteModel
+	buf unsafe.Pointer
 }
 
 // NewModelFromFile create new Model from file data.
@@ -84,9 +97,9 @@ func NewModelFromFile(model_path string) *Model {
 		return nil
 	}
 	model := &Model{m: m}
-	runtime.AddCleanup(model, func(ptr *C.TfLiteModel) {
-		C.TfLiteModelDelete(ptr)
-	}, m)
+	model.cleanup = runtime.AddCleanup(model, func(res modelCleanupData) {
+		C.TfLiteModelDelete(res.m)
+	}, modelCleanupData{m: m})
 	return model
 }
 
@@ -95,13 +108,18 @@ func NewModelFromFile(model_path string) *Model {
 // This method is kept for backward compatibility and explicit resource management.
 func (m *Model) Delete() {
 	if m != nil && m.deleted.CompareAndSwap(false, true) {
+		m.cleanup.Stop() // Cancel automatic cleanup to prevent double-free
 		C.TfLiteModelDelete(m.m)
+		if m.buf != nil {
+			C.free(m.buf)
+		}
 	}
 }
 
 // InterpreterOptions implement TfLiteInterpreterOptions.
 type InterpreterOptions struct {
 	o       *C.TfLiteInterpreterOptions
+	cleanup runtime.Cleanup
 	deleted atomic.Bool
 }
 
@@ -112,7 +130,7 @@ func NewInterpreterOptions() *InterpreterOptions {
 		return nil
 	}
 	opts := &InterpreterOptions{o: o}
-	runtime.AddCleanup(opts, func(ptr *C.TfLiteInterpreterOptions) {
+	opts.cleanup = runtime.AddCleanup(opts, func(ptr *C.TfLiteInterpreterOptions) {
 		C.TfLiteInterpreterOptionsDelete(ptr)
 	}, o)
 	return opts
@@ -141,6 +159,7 @@ func (o *InterpreterOptions) AddDelegate(d delegates.Delegater) {
 // This method is kept for backward compatibility and explicit resource management.
 func (o *InterpreterOptions) Delete() {
 	if o != nil && o.deleted.CompareAndSwap(false, true) {
+		o.cleanup.Stop() // Cancel automatic cleanup to prevent double-free
 		C.TfLiteInterpreterOptionsDelete(o.o)
 	}
 }
@@ -148,6 +167,7 @@ func (o *InterpreterOptions) Delete() {
 // Interpreter implement TfLiteInterpreter.
 type Interpreter struct {
 	i       *C.TfLiteInterpreter
+	cleanup runtime.Cleanup
 	deleted atomic.Bool
 }
 
@@ -162,7 +182,7 @@ func NewInterpreter(model *Model, options *InterpreterOptions) *Interpreter {
 		return nil
 	}
 	interp := &Interpreter{i: i}
-	runtime.AddCleanup(interp, func(ptr *C.TfLiteInterpreter) {
+	interp.cleanup = runtime.AddCleanup(interp, func(ptr *C.TfLiteInterpreter) {
 		C.TfLiteInterpreterDelete(ptr)
 	}, i)
 	return interp
@@ -173,6 +193,7 @@ func NewInterpreter(model *Model, options *InterpreterOptions) *Interpreter {
 // This method is kept for backward compatibility and explicit resource management.
 func (i *Interpreter) Delete() {
 	if i != nil && i.deleted.CompareAndSwap(false, true) {
+		i.cleanup.Stop() // Cancel automatic cleanup to prevent double-free
 		C.TfLiteInterpreterDelete(i.i)
 	}
 }
