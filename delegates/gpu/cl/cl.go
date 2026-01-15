@@ -11,7 +11,7 @@ import "C"
 import (
 	"unsafe"
 
-	"github.com/mattn/go-tflite/delegates"
+	"github.com/tphakala/go-tflite/delegates"
 )
 
 // GpuCompileOptions implement TfLiteGpuCompileOptions.
