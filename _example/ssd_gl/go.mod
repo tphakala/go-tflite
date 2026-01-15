@@ -1,6 +1,6 @@
 module github.com/tphakala/go-tflite/_example/ssd_gl
 
-go 1.13
+go 1.25
 
 replace github.com/tphakala/go-tflite => ../..
 
@@ -9,5 +9,23 @@ replace github.com/tphakala/go-tflite/delegates/gl => ../../delegates/gl
 require (
 	github.com/tphakala/go-tflite v0.0.0-00010101000000-000000000000
 	gocv.io/x/gocv v0.29.0
-	golang.org/x/image v0.0.0-20211028202545-6944b10bf410
+	golang.org/x/image v0.18.0
+)
+
+require (
+	github.com/google/go-cmp v0.6.0 // indirect
+	github.com/hybridgroup/mjpeg v0.0.0-20140228234708-4680f319790e // indirect
+	github.com/mattn/go-pointer v0.0.1 // indirect
+	github.com/pascaldekloe/goe v0.1.0 // indirect
+	github.com/yuin/goldmark v1.4.13 // indirect
+	golang.org/x/crypto v0.23.0 // indirect
+	golang.org/x/mod v0.17.0 // indirect
+	golang.org/x/net v0.25.0 // indirect
+	golang.org/x/sync v0.7.0 // indirect
+	golang.org/x/sys v0.20.0 // indirect
+	golang.org/x/telemetry v0.0.0-20240228155512-f48c80bd79b2 // indirect
+	golang.org/x/term v0.20.0 // indirect
+	golang.org/x/text v0.16.0 // indirect
+	golang.org/x/tools v0.21.1-0.20240508182429-e35e4ccd0d2d // indirect
+	golang.org/x/xerrors v0.0.0-20190717185122-a985d3407aa7 // indirect
 )
