@@ -11,13 +11,9 @@ model := tflite.NewModelFromFile("sin_model.tflite")
 if model == nil {
 	log.Fatal("cannot load model")
 }
-defer model.Delete()
 
 options := tflite.NewInterpreterOptions()
-defer options.Delete()
-
 interpreter := tflite.NewInterpreter(model, options)
-defer interpreter.Delete()
 
 interpreter.AllocateTensors()
 

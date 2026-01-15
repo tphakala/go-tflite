@@ -46,7 +46,6 @@ import "C"
 import (
 	"reflect"
 	"runtime"
-	"sync/atomic"
 	"unsafe"
 
 	"github.com/mattn/go-pointer"
@@ -59,8 +58,7 @@ import (
 type Model struct {
 	m       *C.TfLiteModel
 	buf     unsafe.Pointer  // C.CBytes buffer for NewModel (needs to be freed)
-	cleanup runtime.Cleanup // cleanup handle to prevent double-free
-	deleted atomic.Bool
+	cleanup runtime.Cleanup // cleanup handle for prevent double-free
 }
 
 // NewModel create new Model from buffer.
@@ -103,24 +101,10 @@ func NewModelFromFile(model_path string) *Model {
 	return model
 }
 
-// Delete delete instance of model.
-// Deprecated: Resources are automatically cleaned up by the garbage collector.
-// This method is kept for backward compatibility and explicit resource management.
-func (m *Model) Delete() {
-	if m != nil && m.deleted.CompareAndSwap(false, true) {
-		m.cleanup.Stop() // Cancel automatic cleanup to prevent double-free
-		C.TfLiteModelDelete(m.m)
-		if m.buf != nil {
-			C.free(m.buf)
-		}
-	}
-}
-
 // InterpreterOptions implement TfLiteInterpreterOptions.
 type InterpreterOptions struct {
 	o       *C.TfLiteInterpreterOptions
 	cleanup runtime.Cleanup
-	deleted atomic.Bool
 }
 
 // NewInterpreterOptions create new InterpreterOptions.
@@ -154,21 +138,10 @@ func (o *InterpreterOptions) AddDelegate(d delegates.Delegater) {
 	C.TfLiteInterpreterOptionsAddDelegate(o.o, (*C.TfLiteDelegate)(d.Ptr()))
 }
 
-// Delete delete instance of InterpreterOptions.
-// Deprecated: Resources are automatically cleaned up by the garbage collector.
-// This method is kept for backward compatibility and explicit resource management.
-func (o *InterpreterOptions) Delete() {
-	if o != nil && o.deleted.CompareAndSwap(false, true) {
-		o.cleanup.Stop() // Cancel automatic cleanup to prevent double-free
-		C.TfLiteInterpreterOptionsDelete(o.o)
-	}
-}
-
 // Interpreter implement TfLiteInterpreter.
 type Interpreter struct {
 	i       *C.TfLiteInterpreter
 	cleanup runtime.Cleanup
-	deleted atomic.Bool
 }
 
 // NewInterpreter create new Interpreter.
@@ -186,16 +159,6 @@ func NewInterpreter(model *Model, options *InterpreterOptions) *Interpreter {
 		C.TfLiteInterpreterDelete(ptr)
 	}, i)
 	return interp
-}
-
-// Delete delete instance of Interpreter.
-// Deprecated: Resources are automatically cleaned up by the garbage collector.
-// This method is kept for backward compatibility and explicit resource management.
-func (i *Interpreter) Delete() {
-	if i != nil && i.deleted.CompareAndSwap(false, true) {
-		i.cleanup.Stop() // Cancel automatic cleanup to prevent double-free
-		C.TfLiteInterpreterDelete(i.i)
-	}
 }
 
 // Tensor implement TfLiteTensor.
