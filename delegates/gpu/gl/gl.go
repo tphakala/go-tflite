@@ -14,6 +14,7 @@ package gl
 */
 import "C"
 import (
+	"runtime"
 	"unsafe"
 
 	"github.com/tphakala/go-tflite/delegates"
@@ -32,7 +33,8 @@ type GpuDelegateOptions struct {
 
 // GpuDelegate implement TfLiteGpuCompileOptions.
 type GpuDelegate struct {
-	d *C.TfLiteDelegate
+	d       *C.TfLiteDelegate
+	cleanup runtime.Cleanup
 }
 
 func New(options *GpuDelegateOptions) delegates.Delegater {
@@ -51,11 +53,11 @@ func New(options *GpuDelegateOptions) delegates.Delegater {
 	if d == nil {
 		return nil
 	}
-	return &GpuDelegate{d: d}
-}
-
-func (g *GpuDelegate) Delete() {
-	C.TfLiteGpuDelegateDelete(g.d)
+	del := &GpuDelegate{d: d}
+	del.cleanup = runtime.AddCleanup(del, func(ptr *C.TfLiteDelegate) {
+		C.TfLiteGpuDelegateDelete(ptr)
+	}, d)
+	return del
 }
 
 func (g *GpuDelegate) Ptr() unsafe.Pointer {

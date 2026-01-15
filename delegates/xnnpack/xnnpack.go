@@ -14,6 +14,7 @@ package xnnpack
 */
 import "C"
 import (
+	"runtime"
 	"unsafe"
 
 	"github.com/tphakala/go-tflite/delegates"
@@ -25,7 +26,8 @@ type DelegateOptions struct {
 
 // Delegate is the tflite delegate
 type Delegate struct {
-	d *C.TfLiteDelegate
+	d       *C.TfLiteDelegate
+	cleanup runtime.Cleanup
 }
 
 func New(options DelegateOptions) delegates.Delegater {
@@ -36,14 +38,11 @@ func New(options DelegateOptions) delegates.Delegater {
 	if d == nil {
 		return nil
 	}
-	return &Delegate{
-		d: d,
-	}
-}
-
-// Delete the delegate
-func (d *Delegate) Delete() {
-	C.TfLiteXNNPackDelegateDelete(d.d)
+	del := &Delegate{d: d}
+	del.cleanup = runtime.AddCleanup(del, func(ptr *C.TfLiteDelegate) {
+		C.TfLiteXNNPackDelegateDelete(ptr)
+	}, d)
+	return del
 }
 
 // Return a pointer

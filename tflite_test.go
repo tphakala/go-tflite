@@ -9,13 +9,9 @@ func TestXOR(t *testing.T) {
 	if model == nil {
 		t.Fatal("cannot load model")
 	}
-	defer model.Delete()
 
 	options := NewInterpreterOptions()
-	defer options.Delete()
-
 	interpreter := NewInterpreter(model, options)
-	defer interpreter.Delete()
 
 	interpreter.AllocateTensors()
 

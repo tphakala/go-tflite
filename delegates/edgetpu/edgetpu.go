@@ -21,6 +21,7 @@ package edgetpu
 import "C"
 import (
 	"fmt"
+	"runtime"
 	"unsafe"
 
 	"github.com/tphakala/go-tflite/delegates"
@@ -45,7 +46,8 @@ type DelegateOptions struct {
 
 // Delegate is the tflite delegate
 type Delegate struct {
-	d *C.TfLiteDelegate
+	d       *C.TfLiteDelegate
+	cleanup runtime.Cleanup
 }
 
 func New(device Device) delegates.Delegater {
@@ -56,14 +58,11 @@ func New(device Device) delegates.Delegater {
 	if d == nil {
 		return nil
 	}
-	return &Delegate{
-		d: d,
-	}
-}
-
-// Delete the delegate
-func (d *Delegate) Delete() {
-	C.edgetpu_free_delegate(d.d)
+	del := &Delegate{d: d}
+	del.cleanup = runtime.AddCleanup(del, func(ptr *C.TfLiteDelegate) {
+		C.edgetpu_free_delegate(ptr)
+	}, d)
+	return del
 }
 
 // Return a pointer

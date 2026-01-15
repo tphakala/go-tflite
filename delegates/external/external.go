@@ -20,6 +20,7 @@ package external
 import "C"
 import (
 	"errors"
+	"runtime"
 	"unsafe"
 
 	"github.com/tphakala/go-tflite/delegates"
@@ -43,7 +44,8 @@ func (o *DelegateOptions) Insert(key, value string) error {
 
 // Delegate is the tflite delegate
 type Delegate struct {
-	d *C.TfLiteDelegate
+	d       *C.TfLiteDelegate
+	cleanup runtime.Cleanup
 }
 
 func New(options DelegateOptions) delegates.Delegater {
@@ -55,14 +57,11 @@ func New(options DelegateOptions) delegates.Delegater {
 	if d == nil {
 		return nil
 	}
-	return &Delegate{
-		d: d,
-	}
-}
-
-// Delete the delegate
-func (d *Delegate) Delete() {
-	C.TfLiteExternalDelegateDelete(d.d)
+	del := &Delegate{d: d}
+	del.cleanup = runtime.AddCleanup(del, func(ptr *C.TfLiteDelegate) {
+		C.TfLiteExternalDelegateDelete(ptr)
+	}, d)
+	return del
 }
 
 // Return a pointer

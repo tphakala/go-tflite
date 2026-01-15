@@ -9,6 +9,5 @@ type ModifyGraphWithDelegater interface {
 }
 
 type Delegater interface {
-	Delete()
 	Ptr() unsafe.Pointer
 }
