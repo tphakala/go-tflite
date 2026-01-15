@@ -8,8 +8,8 @@ import (
 )
 
 type callbackInfo struct {
-	user_data interface{}
-	f         func(msg string, user_data interface{})
+	user_data any
+	f         func(msg string, user_data any)
 }
 
 //export _go_error_reporter
