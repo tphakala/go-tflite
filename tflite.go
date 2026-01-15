@@ -103,8 +103,9 @@ func NewModelFromFile(model_path string) *Model {
 
 // InterpreterOptions implement TfLiteInterpreterOptions.
 type InterpreterOptions struct {
-	o       *C.TfLiteInterpreterOptions
-	cleanup runtime.Cleanup
+	o         *C.TfLiteInterpreterOptions
+	cleanup   runtime.Cleanup
+	delegates []delegates.Delegater // Keep references to prevent GC from cleaning up delegates while in use
 }
 
 // NewInterpreterOptions create new InterpreterOptions.
@@ -135,6 +136,7 @@ func (o *InterpreterOptions) SetErrorReporter(f func(string, any), user_data any
 
 // AddDelegate adds a delegate to the interpreter options.
 func (o *InterpreterOptions) AddDelegate(d delegates.Delegater) {
+	o.delegates = append(o.delegates, d) // Keep reference to prevent GC
 	C.TfLiteInterpreterOptionsAddDelegate(o.o, (*C.TfLiteDelegate)(d.Ptr()))
 }
 
@@ -142,6 +144,8 @@ func (o *InterpreterOptions) AddDelegate(d delegates.Delegater) {
 type Interpreter struct {
 	i       *C.TfLiteInterpreter
 	cleanup runtime.Cleanup
+	model   *Model              // Keep reference to prevent GC from cleaning up model while interpreter uses it
+	options *InterpreterOptions // Keep reference to prevent GC from cleaning up options (and its delegates) while in use
 }
 
 // NewInterpreter create new Interpreter.
@@ -154,7 +158,11 @@ func NewInterpreter(model *Model, options *InterpreterOptions) *Interpreter {
 	if i == nil {
 		return nil
 	}
-	interp := &Interpreter{i: i}
+	interp := &Interpreter{
+		i:       i,
+		model:   model,   // Keep reference to prevent premature GC
+		options: options, // Keep reference to prevent premature GC (includes delegates)
+	}
 	interp.cleanup = runtime.AddCleanup(interp, func(ptr *C.TfLiteInterpreter) {
 		C.TfLiteInterpreterDelete(ptr)
 	}, i)
