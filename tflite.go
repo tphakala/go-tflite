@@ -46,9 +46,9 @@ import "C"
 import (
 	"reflect"
 	"runtime"
+	"runtime/cgo"
 	"unsafe"
 
-	"github.com/mattn/go-pointer"
 	"github.com/tphakala/go-tflite/delegates"
 )
 
@@ -117,9 +117,10 @@ func NewModelFromFile(model_path string) *Model {
 
 // InterpreterOptions implement TfLiteInterpreterOptions.
 type InterpreterOptions struct {
-	o         *C.TfLiteInterpreterOptions
-	cleanup   runtime.Cleanup
-	delegates []delegates.Delegater // Keep references to prevent GC from cleaning up delegates while in use
+	o              *C.TfLiteInterpreterOptions
+	cleanup        runtime.Cleanup
+	delegates      []delegates.Delegater // Keep references to prevent GC from cleaning up delegates while in use
+	reporterHandle cgo.Handle            // Handle for error reporter callback (needs explicit cleanup)
 }
 
 // NewInterpreterOptions create new InterpreterOptions.
@@ -142,10 +143,11 @@ func (o *InterpreterOptions) SetNumThread(num_threads int) {
 
 // SetErrorReporter set a function of reporter.
 func (o *InterpreterOptions) SetErrorReporter(f func(string, any), user_data any) {
-	C._TfLiteInterpreterOptionsSetErrorReporter(o.o, pointer.Save(&callbackInfo{
+	o.reporterHandle = cgo.NewHandle(&callbackInfo{
 		user_data: user_data,
 		f:         f,
-	}))
+	})
+	C._TfLiteInterpreterOptionsSetErrorReporter(o.o, unsafe.Pointer(o.reporterHandle))
 }
 
 // AddDelegate adds a delegate to the interpreter options.
@@ -164,6 +166,10 @@ func (o *InterpreterOptions) Delete() {
 		o.cleanup.Stop()
 		C.TfLiteInterpreterOptionsDelete(o.o)
 		o.o = nil
+	}
+	if o.reporterHandle != 0 {
+		o.reporterHandle.Delete()
+		o.reporterHandle = 0
 	}
 	for _, d := range o.delegates {
 		if del, ok := d.(delegates.Deleter); ok {

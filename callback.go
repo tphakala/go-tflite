@@ -2,9 +2,8 @@ package tflite
 
 import "C"
 import (
+	"runtime/cgo"
 	"unsafe"
-
-	"github.com/mattn/go-pointer"
 )
 
 type callbackInfo struct {
@@ -14,6 +13,6 @@ type callbackInfo struct {
 
 //export _go_error_reporter
 func _go_error_reporter(user_data unsafe.Pointer, msg *C.char) {
-	cb := pointer.Restore(user_data).(*callbackInfo)
+	cb := cgo.Handle(user_data).Value().(*callbackInfo)
 	cb.f(C.GoString(msg), cb.user_data)
 }
