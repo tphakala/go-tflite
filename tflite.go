@@ -155,6 +155,9 @@ func (o *InterpreterOptions) AddDelegate(d delegates.Delegater) {
 }
 
 // Delete frees the options and any associated delegates immediately rather than waiting for GC.
+// This assumes exclusive ownership of the delegates — do not call if delegates are shared
+// with other InterpreterOptions instances. For shared delegates, call Delete() on each
+// resource individually.
 // Safe to call multiple times.
 func (o *InterpreterOptions) Delete() {
 	if o.o != nil {
@@ -202,6 +205,11 @@ func NewInterpreter(model *Model, options *InterpreterOptions) *Interpreter {
 // Delete frees the interpreter, its options (including delegates), and model immediately
 // rather than waiting for GC. Resources are freed in the correct order:
 // interpreter first, then options and delegates, then model.
+//
+// This assumes the interpreter has exclusive ownership of its model and options.
+// If a model or options are shared across multiple interpreters, do not use this method —
+// instead call Delete() on each resource individually in the correct order
+// (all interpreters first, then options, then model).
 // Safe to call multiple times.
 func (i *Interpreter) Delete() {
 	if i.i != nil {
