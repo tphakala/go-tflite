@@ -76,9 +76,14 @@ func New(libraryPath string) delegates.Delegater {
 	return &LibDelegate{d: d, destroyFunc: destroyFunc, libHandle: h}
 }
 
+// Delete frees the delegate immediately.
+// Safe to call multiple times.
 func (d *LibDelegate) Delete() {
-	C.destroyDelegate(d.destroyFunc, d.d)
-	d.libHandle.Close()
+	if d.d != nil {
+		C.destroyDelegate(d.destroyFunc, d.d)
+		d.d = nil
+		d.libHandle.Close()
+	}
 }
 
 func (d *LibDelegate) Ptr() unsafe.Pointer {

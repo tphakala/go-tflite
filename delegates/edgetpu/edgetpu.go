@@ -65,6 +65,16 @@ func New(device Device) delegates.Delegater {
 	return del
 }
 
+// Delete frees the delegate immediately rather than waiting for GC.
+// Safe to call multiple times.
+func (d *Delegate) Delete() {
+	if d.d != nil {
+		d.cleanup.Stop()
+		C.edgetpu_free_delegate(d.d)
+		d.d = nil
+	}
+}
+
 // Return a pointer
 func (d *Delegate) Ptr() unsafe.Pointer {
 	return unsafe.Pointer(d.d)

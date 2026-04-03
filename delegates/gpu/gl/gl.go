@@ -60,6 +60,16 @@ func New(options *GpuDelegateOptions) delegates.Delegater {
 	return del
 }
 
+// Delete frees the delegate immediately rather than waiting for GC.
+// Safe to call multiple times.
+func (g *GpuDelegate) Delete() {
+	if g.d != nil {
+		g.cleanup.Stop()
+		C.TfLiteGpuDelegateDelete(g.d)
+		g.d = nil
+	}
+}
+
 func (g *GpuDelegate) Ptr() unsafe.Pointer {
 	return unsafe.Pointer(g.d)
 }
