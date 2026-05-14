@@ -147,7 +147,7 @@ func (o *InterpreterOptions) SetErrorReporter(f func(string, any), user_data any
 		user_data: user_data,
 		f:         f,
 	})
-	C._TfLiteInterpreterOptionsSetErrorReporter(o.o, unsafe.Pointer(o.reporterHandle))
+	C._TfLiteInterpreterOptionsSetErrorReporter(o.o, C.uintptr_t(o.reporterHandle))
 }
 
 // AddDelegate adds a delegate to the interpreter options.
